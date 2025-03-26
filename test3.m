@@ -1,0 +1,10 @@
+n = 0:50; 
+h = (0.6).^n; 
+x = ones(size(n)); 
+y = conv(x, h);
+n_y = 0:(length(y)-1);
+stem(n_y, y, 'filled', 'b'); 
+xlabel('n');
+ylabel('y[n]');
+title('System Response to x[n] = u[n]');
+grid on;
