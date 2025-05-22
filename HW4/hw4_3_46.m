@@ -1,0 +1,10 @@
+num = [1 1];
+den = [1 2 1 3];
+d = length(y);
+n = 0:1:d-1;
+x = 1*ones(size(n));
+y = filter(num, den, x);
+G = plot(n, y);
+xlabel('Sample number n');
+ylabel('step response y[n]');
+disp(G);
