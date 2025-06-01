@@ -215,34 +215,81 @@ if ~isempty(segment_resampled_noise)
     disp(['   頻帶內雜訊能量 (Resample片段): ', num2str(energy_resampled_noise_band)]);
 end
 
-% 範例：如果已知原始訊號有特定的高頻雜訊，可以量化其混疊情況
-% 例如，如果原始訊號在 400-450 Hz 附近有顯著雜訊。
-% 下取樣5倍後 (新 fs=200Hz)，這些雜訊會混疊到:
-% 400 Hz -> |400 - 2*200| = 0 Hz
-% 450 Hz -> |450 - 2*200| = 50 Hz
-% 我們可以檢查例如 45-55 Hz 頻帶在下取樣訊號中的情況。
-aliasing_check_band = [45, 55]; % Hz, 檢查混疊的頻帶範例
-disp(['   檢查混疊的頻帶: [', num2str(aliasing_check_band(1)), ', ', num2str(aliasing_check_band(2)), '] Hz']);
+% --- 量化特定高頻雜訊的混疊情況 ---
+disp(' ');
+disp('3. 量化特定高頻雜訊的混疊情況:');
+
+% --- 針對 180 Hz 雜訊 (混疊至 20 Hz) ---
+aliasing_freq1_orig = 180; % Hz
+aliasing_freq1_new = 20;   % Hz
+check_band1 = [max(1, aliasing_freq1_new - 2), aliasing_freq1_new + 2]; % 例如檢查 18-22 Hz
+disp(['   檢查原始 ',num2str(aliasing_freq1_orig) ,' Hz 雜訊混疊至 ~', num2str(aliasing_freq1_new), ' Hz (頻帶: [', num2str(check_band1(1)), ', ', num2str(check_band1(2)), '] Hz):']);
 
 if ~isempty(segment_manual_noise)
-    [energy_manual_aliasing, f_md_alias, P1_md_alias] = calculate_band_energy(segment_manual_noise, fs_downsampled, aliasing_check_band);
-    disp(['     混疊頻帶內的能量 (手動下取樣): ', num2str(energy_manual_aliasing)]);
-    % 可選：計算此混疊頻帶內的峰值振幅
-    if ~isempty(P1_md_alias) && any(f_md_alias >= aliasing_check_band(1) & f_md_alias <= aliasing_check_band(2)) % 確保頻帶內有數據點
-        peak_amp_md_alias = max(P1_md_alias(f_md_alias >= aliasing_check_band(1) & f_md_alias <= aliasing_check_band(2)));
-        disp(['     混疊頻帶內的峰值振幅 (手動下取樣): ', num2str(peak_amp_md_alias)]);
+    [energy_manual_alias1, f_md_alias1, P1_md_alias1] = calculate_band_energy(segment_manual_noise, fs_downsampled, check_band1);
+    disp(['     混疊頻帶1能量 (手動下取樣): ', num2str(energy_manual_alias1)]);
+    if ~isempty(P1_md_alias1) && any(f_md_alias1 >= check_band1(1) & f_md_alias1 <= check_band1(2))
+        peak_amp_md_alias1 = max(P1_md_alias1(f_md_alias1 >= check_band1(1) & f_md_alias1 <= check_band1(2)));
+        disp(['     混疊頻帶1峰值振幅 (手動下取樣): ', num2str(peak_amp_md_alias1)]);
     end
 end
-
 if ~isempty(segment_resampled_noise)
-    [energy_resampled_aliasing, f_rs_alias, P1_rs_alias] = calculate_band_energy(segment_resampled_noise, fs_downsampled, aliasing_check_band);
-    disp(['     混疊頻帶內的能量 (Resample): ', num2str(energy_resampled_aliasing)]);
-     if ~isempty(P1_rs_alias) && any(f_rs_alias >= aliasing_check_band(1) & f_rs_alias <= aliasing_check_band(2)) % 確保頻帶內有數據點
-        peak_amp_rs_alias = max(P1_rs_alias(f_rs_alias >= aliasing_check_band(1) & f_rs_alias <= aliasing_check_band(2)));
-        disp(['     混疊頻帶內的峰值振幅 (Resample): ', num2str(peak_amp_rs_alias)]);
+    [energy_resampled_alias1, f_rs_alias1, P1_rs_alias1] = calculate_band_energy(segment_resampled_noise, fs_downsampled, check_band1);
+    disp(['     混疊頻帶1能量 (Resample): ', num2str(energy_resampled_alias1)]);
+    if ~isempty(P1_rs_alias1) && any(f_rs_alias1 >= check_band1(1) & f_rs_alias1 <= check_band1(2))
+        peak_amp_rs_alias1 = max(P1_rs_alias1(f_rs_alias1 >= check_band1(1) & f_rs_alias1 <= check_band1(2)));
+        disp(['     混疊頻帶1峰值振幅 (Resample): ', num2str(peak_amp_rs_alias1)]);
     end
 end
+disp(' ');
 
+% --- 針對 300 Hz 雜訊 (混疊至 100 Hz) ---
+aliasing_freq2_orig = 300; % Hz
+aliasing_freq2_new = 100;  % Hz
+check_band2 = [aliasing_freq2_new - 5, aliasing_freq2_new -1]; % 例如檢查 98-99 Hz (避免剛好在Nyquist點)
+disp(['   檢查原始 ',num2str(aliasing_freq2_orig) ,' Hz 雜訊混疊至 ~', num2str(aliasing_freq2_new), ' Hz (頻帶: [', num2str(check_band2(1)), ', ', num2str(check_band2(2)), '] Hz):']);
+
+if ~isempty(segment_manual_noise)
+    [energy_manual_alias2, f_md_alias2, P1_md_alias2] = calculate_band_energy(segment_manual_noise, fs_downsampled, check_band2);
+    disp(['     混疊頻帶2能量 (手動下取樣): ', num2str(energy_manual_alias2)]);
+    if ~isempty(P1_md_alias2) && any(f_md_alias2 >= check_band2(1) & f_md_alias2 <= check_band2(2))
+        peak_amp_md_alias2 = max(P1_md_alias2(f_md_alias2 >= check_band2(1) & f_md_alias2 <= check_band2(2)));
+        disp(['     混疊頻帶2峰值振幅 (手動下取樣): ', num2str(peak_amp_md_alias2)]);
+    end
+end
+if ~isempty(segment_resampled_noise)
+    [energy_resampled_alias2, f_rs_alias2, P1_rs_alias2] = calculate_band_energy(segment_resampled_noise, fs_downsampled, check_band2);
+    disp(['     混疊頻帶2能量 (Resample): ', num2str(energy_resampled_alias2)]);
+     if ~isempty(P1_rs_alias2) && any(f_rs_alias2 >= check_band2(1) & f_rs_alias2 <= check_band2(2))
+        peak_amp_rs_alias2 = max(P1_rs_alias2(f_rs_alias2 >= check_band2(1) & f_rs_alias2 <= check_band2(2)));
+        disp(['     混疊頻帶2峰值振幅 (Resample): ', num2str(peak_amp_rs_alias2)]);
+    end
+end
+disp(' ');
+
+% --- 針對 459 Hz 雜訊 (混疊至 59 Hz) ---
+aliasing_freq3_orig = 459; % Hz
+aliasing_freq3_new = 59;   % Hz
+check_band3 = [aliasing_freq3_new - 2, aliasing_freq3_new + 2]; % 例如檢查 57-61 Hz
+disp(['   檢查原始 ',num2str(aliasing_freq3_orig) ,' Hz 雜訊混疊至 ~', num2str(aliasing_freq3_new), ' Hz (頻帶: [', num2str(check_band3(1)), ', ', num2str(check_band3(2)), '] Hz):']);
+
+if ~isempty(segment_manual_noise)
+    [energy_manual_alias3, f_md_alias3, P1_md_alias3] = calculate_band_energy(segment_manual_noise, fs_downsampled, check_band3);
+    disp(['     混疊頻帶3能量 (手動下取樣): ', num2str(energy_manual_alias3)]);
+    if ~isempty(P1_md_alias3) && any(f_md_alias3 >= check_band3(1) & f_md_alias3 <= check_band3(2))
+        peak_amp_md_alias3 = max(P1_md_alias3(f_md_alias3 >= check_band3(1) & f_md_alias3 <= check_band3(2)));
+        disp(['     混疊頻帶3峰值振幅 (手動下取樣): ', num2str(peak_amp_md_alias3)]);
+    end
+end
+if ~isempty(segment_resampled_noise)
+    [energy_resampled_alias3, f_rs_alias3, P1_rs_alias3] = calculate_band_energy(segment_resampled_noise, fs_downsampled, check_band3);
+    disp(['     混疊頻帶3能量 (Resample): ', num2str(energy_resampled_alias3)]);
+    if ~isempty(P1_rs_alias3) && any(f_rs_alias3 >= check_band3(1) & f_rs_alias3 <= check_band3(2))
+        peak_amp_rs_alias3 = max(P1_rs_alias3(f_rs_alias3 >= check_band3(1) & f_rs_alias3 <= check_band3(2)));
+        disp(['     混疊頻帶3峰值振幅 (Resample): ', num2str(peak_amp_rs_alias3)]);
+    end
+end
+disp(' ');
 disp(' ');
 disp('處理完成。請檢視圖表和量化結果。');
 
